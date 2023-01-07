@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: auth-depl 
+spec:
+  replicas: 1
+  selector: # to tell deployment (above) how to find all the pods that it's going to create 
+    matchLabels: 
+      app: auth  
+  template: # how to create each individual pods that the deployment is going to create    
+    metadata:
+      labels:
+        app: auth # this matched withthe above matchLabels array?
+    spec:
+      containers:
+        - name: auth # this name is important just for logging purposes
+          image: masterutd/auth:latest    
+          env:
+            - name: MONGO_URI 
+              value: 'mongodb://auth-mongo-srv:27017/auth' # si tengo mis credenciales y mi contraseña en este string me toca implementar la env variable como en la jwt de abajo que esta secreta
+            - name: MI_JWT # this is the name i chose to my environment variable
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+---
+# the config for our service
+# i did not specify a type: because the default type is clusterIp service , and that is what we are gonna use 
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: auth-srv
+spec: # to tell the server how to behave
+  selector: # which is gonna tell this service how to find the set of pods or a pod that is supposed to govern access to, we want to find all the pods with the  label of app: auth
+    app: auth
+  ports: 
+    - name: auth
+      protocol: TCP
+      port: 3000 # el puerto de mi nodo en kubernetes
+      targetPort: 3000 # the actual port of my auth app    
+    
+

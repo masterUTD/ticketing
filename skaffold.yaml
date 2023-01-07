@@ -1,0 +1,58 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/* # these are the files skaffold must watch 
+build: 
+  local:
+    push: false # to not push to docker hub 
+  artifacts:
+    - image: masterutd/auth # the image
+      context: auth # the folder 
+      docker:
+        dockerfile: Dockerfile # specifying the docker file
+      sync: # to tell skaffold  how to handle any file that change inside the auth folder
+        manual:
+          - src: 'src/**/*.ts' 
+            dest: . # destination  the dot means throw the 'src/**/*.ts' any changes and throw inside of our running container, to the corresponding pod , in this case is the auth pod
+    - image: masterutd/client 
+      context: client 
+      docker:
+        dockerfile: Dockerfile 
+      sync: # to tell skaffold  how to handle any file that change inside the client folder
+        manual:
+          - src: '**/*.js' 
+            dest: .   
+    - image: masterutd/tickets 
+      context: tickets # the folder 
+      docker:
+        dockerfile: Dockerfile 
+      sync: 
+        manual:
+          - src: 'src/**/*.ts' 
+            dest: .
+    - image: masterutd/orders  
+      context: orders  
+      docker:
+        dockerfile: Dockerfile 
+      sync:  
+        manual:
+          - src: 'src/**/*.ts'      
+            dest: .  
+    - image: masterutd/expiration  
+      context: expiration  
+      docker:
+        dockerfile: Dockerfile 
+      sync:  
+        manual:
+          - src: 'src/**/*.ts'      
+            dest: . 
+    - image: masterutd/payments  
+      context: payments  
+      docker:
+        dockerfile: Dockerfile 
+      sync:  
+        manual:
+          - src: 'src/**/*.ts'      
+            dest: .                                                     

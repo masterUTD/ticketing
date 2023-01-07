@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:    
+  rules: 
+    - host: ticketing.dev
+      http:
+        paths: # the order of the paths matters , it is like a cascade, make sure to put the backend service first
+          - path: /api/payments/?(.*) 
+            pathType: Prefix
+            backend:
+              service:
+                name: payments-srv
+                port: 
+                  number: 3000                  
+          - path: /api/users/?(.*) # cualquier solicitud a este path me lo va a enviar al auth-srv
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-srv
+                port: 
+                  number: 3000
+          - path: '/api/tickets/?(.*)'  # /api/tickets/ anything
+            pathType: Prefix
+            backend:
+              service:
+                name: tickets-srv  
+                port: 
+                  number: 3000
+          - path: '/api/orders/?(.*)' 
+            pathType: Prefix 
+            backend:
+              service:
+                name: orders-srv   
+                port: 
+                  number: 3000                   
+          - path: /?(.*) 
+            pathType: Prefix
+            backend:
+              service:  # also serviceName: and servicePort:
+                name: client-srv
+                port: 
+                  number: 3000
+
+
+# ingress-nginx : to expose access to these services from the outside world
+# like a cascade of path , i must put the next path at the end 

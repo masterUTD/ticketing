@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: payments-mongo-depl 
+spec:
+  replicas: 1
+  selector: # to tell deployment (above) how to find all the pods that it's going to create 
+    matchLabels: 
+      app: payments-mongo  
+  template: # how to create each individual pods that the deployment is going to create    
+    metadata:
+      labels:
+        app: payments-mongo # this matched with the above matchLabels array?
+    spec:
+      containers:
+        - name: payments-mongo # this name is important just for logging purposes
+          image: mongo  # this image come grom docker hub
+
+---
+# creating a clusterIp service (object) not a microservice
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: payments-mongo-srv
+spec: 
+  selector: 
+    app: payments-mongo
+  ports: 
+    - name: db # just for logging puposes if you want to print information about this service
+      protocol: TCP
+      port: 27017 
+      targetPort: 27017      
+              

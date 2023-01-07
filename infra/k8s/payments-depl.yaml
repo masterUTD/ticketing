@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: payments-depl 
+spec:
+  replicas: 1
+  selector: # to tell deployment (above) how to find all the pods that it's going to create 
+    matchLabels: 
+      app: payments  
+  template: # how to create each individual pods that the deployment is going to create    
+    metadata:
+      labels:
+        app: payments # this matched withthe above matchLabels array?
+    spec:
+      containers:
+        - name: payments # this name is important just for logging purposes
+          image: masterutd/payments     # si no le pongo :latest en el final , kubernetes le añade el latest por defecto
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom: # generate the client id from the pods name, whenever we create a pod to run the ticket service , kubernetes is going to take a look at the pods name and provide it as an environment variable inside of  NATS_CLIENT_ID
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing    
+            - name: MONGO_URI
+              value: 'mongodb://payments-mongo-srv:27017/payments'
+            - name: MI_JWT # this is the name i chose to my environment variable
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: STRIPE_KEY # this is the name i chose to my environment variable // aqui le puedo poner otro nombre 
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-secret # the key we created // kubectl create secret generic stripe-secret --from-literal STRIPE_KEY=pk-test51I......
+                  key: STRIPE_KEY       #  --from-literal (STRIPE_KEY)=pk-test51I....                  
+---
+# the config for our service
+# i did not specify a type: because the default type is clusterIp service , and that is what we are gonna use 
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: payments-srv
+spec: # to tell the server how to behave
+  selector: # which is gonna tell this service how to find the set of pods or a pod that is supposed to govern access to, we want to find all the pods with the  label of app: auth
+    app: payments
+  ports: 
+    - name: payments
+      protocol: TCP
+      port: 3000 # el puerto de mi nodo en kubernetes
+      targetPort: 3000 # the actual port of my auth app    
+    
+

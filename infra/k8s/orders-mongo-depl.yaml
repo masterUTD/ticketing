@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: orders-mongo-depl 
+spec:
+  replicas: 1
+  selector: # to tell deployment (above) how to find all the pods that it's going to create 
+    matchLabels: 
+      app: orders-mongo  
+  template: # how to create each individual pods that the deployment is going to create    
+    metadata:
+      labels:
+        app: orders-mongo # this matched withthe above matchLabels array?
+    spec:
+      containers:
+        - name: orders-mongo # this name is important just for logging purposes
+          image: mongo  # this image come grom docker hub
+
+---
+# creating a clusterIp service (object) not a microservice
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: orders-mongo-srv
+spec: 
+  selector: 
+    app: orders-mongo
+  ports: 
+    - name: db # just for logging puposes if you want to print information about this service
+      protocol: TCP
+      port: 27017 
+      targetPort: 27017      
+              

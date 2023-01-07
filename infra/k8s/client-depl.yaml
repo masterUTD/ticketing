@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: client-depl
+spec: 
+  replicas: 1 # one cause we want to run a single pod
+  selector:
+    matchLabels: 
+      app: client
+  template:
+    metadata:
+      labels: 
+        app: client
+    spec:                   # to describe how every(each) pod behaves
+      containers: 
+        - name: client
+          image: masterutd/client
+---
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: client-srv
+spec:
+  selector: 
+    app: client
+  ports: 
+    - name: client # for logging and reporting purposes
+      protocol: TCP
+      port: 3000  # the port of the node of the service
+      targetPort: 3000 
