@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { app } from './app'
 
 const start = async () => {
+    console.log('starting up ...')
 
     if(!process.env.MI_JWT) {
         throw new Error('JWT iS NOT DEFINED')
