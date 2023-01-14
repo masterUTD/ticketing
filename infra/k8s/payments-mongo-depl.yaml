@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: payments-mongo # this name is important just for logging purposes
-          image: mongo  # this image come grom docker hub
+          image: mongo  # this image comes from docker hub
 
 ---
 # creating a clusterIp service (object) not a microservice
