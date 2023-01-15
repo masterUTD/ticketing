@@ -1,8 +1,10 @@
 name: tests-auth
 
 on:
-  pull_request
-  
+  pull_request:
+    paths:
+      - 'auth/**'    #solo me ejecuta los jobs cuando haya algun cambio relacionado dentro del auth directory,, con el auth service
+
 jobs:
   build:
     runs-on: ubuntu-latest
